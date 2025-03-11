@@ -1,5 +1,5 @@
-# Ayn Odin2 Configuration
-declare -g BOARD_NAME="Ayn Odin2"
+# Ayn Odin2 Portal Configuration
+declare -g BOARD_NAME="Ayn Odin2 Portal"
 declare -g BOARD_MAINTAINER="FantasyGmm"
 declare -g BOARDFAMILY="sm8550"
 declare -g KERNEL_TARGET="current,edge"
@@ -23,7 +23,7 @@ function ayn-odin2_is_userspace_supported() {
 }
 
 function pre_customize_image__ayn-odin2_alsa_ucm_conf() {
-	if !ayn-odin2_is_userspace_supported; then
+	if ! ayn-odin2_is_userspace_supported; then
 		return 0
 	fi
 
@@ -53,11 +53,14 @@ function post_family_tweaks_bsp__ayn-odin2_firmware() {
 	install -Dm655 $SRC/packages/bsp/usb-gadget-network/dropbear $destination/etc/initramfs-tools/scripts/init-premount/
 	install -Dm655 $SRC/packages/bsp/usb-gadget-network/kill-dropbear $destination/etc/initramfs-tools/scripts/init-bottom/
 
+	# Kernel postinst script to update abl boot partition
+	install -Dm655 $SRC/packages/bsp/ayn-odin2/zz-update-abl-kernel $destination/etc/kernel/postinst.d/
+
 	return 0
 }
 
-function post_family_tweaks__ayn-odin2_enable_services() {
-	if !ayn-odin2_is_userspace_supported; then
+function post_family_tweaks__ayn-odin2portal_enable_services() {
+	if ! ayn-odin2_is_userspace_supported; then
 		if [[ "${RELEASE}" != "" ]]; then
 			display_alert "Missing userspace for ${BOARD}" "${RELEASE} does not have the userspace necessary to support the ${BOARD}" "warn"
 		fi
@@ -73,8 +76,8 @@ function post_family_tweaks__ayn-odin2_enable_services() {
 	mv "${SDCARD}"/etc/apt/sources.list.d/armbian.sources.disabled "${SDCARD}"/etc/apt/sources.list.d/armbian.sources
 
 	do_with_retries 3 chroot_sdcard_apt_get_update
-		display_alert "Installing ${BOARD} tweaks" "warn"
-	do_with_retries 3 chroot_sdcard_apt_get_install alsa-ucm-conf qbootctl qrtr-tools unudhcpd mkbootimg
+	display_alert "Installing ${BOARD} tweaks" "warn"
+	do_with_retries 3 chroot_sdcard_apt_get_install alsa-ucm-conf qbootctl qrtr-tools unudhcpd mkbootimg git mtools zstd
 	# disable armbian repo back
 	mv "${SDCARD}"/etc/apt/sources.list.d/armbian.sources "${SDCARD}"/etc/apt/sources.list.d/armbian.sources.disabled
 	do_with_retries 3 chroot_sdcard_apt_get_update
@@ -91,7 +94,7 @@ function post_family_tweaks__ayn-odin2_enable_services() {
 	return 0
 }
 
-function post_family_tweaks_bsp__ayn-odin2_bsp_firmware_in_initrd() {
+function post_family_tweaks_bsp__ayn-odin2portal_bsp_firmware_in_initrd() {
 	display_alert "Adding to bsp-cli" "${BOARD}: firmware in initrd" "warn"
 	declare file_added_to_bsp_destination # Will be filled in by add_file_from_stdin_to_bsp_destination
 	# Using odin2's firmware for now
