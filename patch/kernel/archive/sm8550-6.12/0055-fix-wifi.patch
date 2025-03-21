@@ -1,0 +1,58 @@
+diff --git a/drivers/net/wireless/ath/ath12k/ce.c b/drivers/net/wireless/ath/ath12k/ce.c
+index be0d669d3..d28e46c5c 100644
+--- a/drivers/net/wireless/ath/ath12k/ce.c
++++ b/drivers/net/wireless/ath/ath12k/ce.c
+@@ -337,18 +337,26 @@ static int ath12k_ce_completed_recv_next(struct ath12k_ce_pipe *pipe,
+ 
+ 	ath12k_hal_srng_access_begin(ab, srng);
+ 
+-	desc = ath12k_hal_srng_dst_get_next_entry(ab, srng);
++	desc = ath12k_hal_srng_dst_peek(ab, srng);
+ 	if (!desc) {
+ 		ret = -EIO;
+ 		goto err;
+ 	}
+ 
+ 	*nbytes = ath12k_hal_ce_dst_status_get_length(desc);
+-	if (*nbytes == 0) {
+-		ret = -EIO;
+-		goto err;
++	if (unlikely*nbytes == 0) {
++		struct ath12k_skb_rxcb *rxcb =
++				ATH12K_SKB_RXCB(pipe->dest_ring->skb[sw_index]);
++				
++		if (!rxcb->is_desc_len0) {
++			rxcb->is_desc_len0 = ture;
++			ret = -EIO;
++			goto err;
++		}
+ 	}
+ 
++	ath12k_hal_srng_dst_next(ab,srng);
++
+ 	*skb = pipe->dest_ring->skb[sw_index];
+ 	pipe->dest_ring->skb[sw_index] = NULL;
+ 
+@@ -380,8 +388,8 @@ static void ath12k_ce_recv_process_cb(struct ath12k_ce_pipe *pipe)
+ 		dma_unmap_single(ab->dev, ATH12K_SKB_RXCB(skb)->paddr,
+ 				 max_nbytes, DMA_FROM_DEVICE);
+ 
+-		if (unlikely(max_nbytes < nbytes)) {
+-			ath12k_warn(ab, "rxed more than expected (nbytes %d, max %d)",
++		if (unlikely(max_nbytes < nbytes || !nbytes)) {
++			ath12k_warn(ab, "rxed invalid length(nbytes %d, max %d)",
+ 				    nbytes, max_nbytes);
+ 			dev_kfree_skb_any(skb);
+ 			continue;
+diff --git a/drivers/net/wireless/ath/ath12k/core.h b/drivers/net/wireless/ath/ath12k/core.h
+index 7f2e9a9b4..46a4e0955 100644
+--- a/drivers/net/wireless/ath/ath12k/core.h
++++ b/drivers/net/wireless/ath/ath12k/core.h
+@@ -115,6 +115,7 @@ struct ath12k_skb_rxcb {
+ 	bool is_continuation;
+ 	bool is_mcbc;
+ 	bool is_eapol;
++	bool is_desc_len0;
+ 	struct hal_rx_desc *rx_desc;
+ 	u8 err_rel_src;
+ 	u8 err_code;
