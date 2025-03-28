@@ -1,4 +1,5 @@
 diff --git a/drivers/clk/qcom/common.c b/drivers/clk/qcom/common.c
+index 33cc1f73c..ef1a63c10 100644
 --- a/drivers/clk/qcom/common.c
 +++ b/drivers/clk/qcom/common.c
 @@ -9,6 +9,7 @@
@@ -9,9 +10,9 @@ diff --git a/drivers/clk/qcom/common.c b/drivers/clk/qcom/common.c
  #include <linux/reset-controller.h>
  #include <linux/of.h>
  
-@@ -304,6 +305,16 @@ int qcom_cc_really_probe(struct device *dev,
- 	if (ret < 0 && ret != -EEXIST)
- 		return ret;
+@@ -299,6 +300,16 @@ int qcom_cc_really_probe(struct device *dev,
+ 	if (!cc)
+ 		return -ENOMEM;
  
 +	if (desc->use_rpm) {
 +		ret = devm_pm_runtime_enable(dev);
@@ -26,7 +27,7 @@ diff --git a/drivers/clk/qcom/common.c b/drivers/clk/qcom/common.c
  	reset = &cc->reset;
  	reset->rcdev.of_node = dev->of_node;
  	reset->rcdev.ops = &qcom_reset_ops;
-@@ -314,23 +325,25 @@ int qcom_cc_really_probe(struct device *dev,
+@@ -309,22 +320,24 @@ int qcom_cc_really_probe(struct device *dev,
  
  	ret = devm_reset_controller_register(dev, &reset->rcdev);
  	if (ret)
@@ -36,15 +37,13 @@ diff --git a/drivers/clk/qcom/common.c b/drivers/clk/qcom/common.c
  	if (desc->gdscs && desc->num_gdscs) {
  		scd = devm_kzalloc(dev, sizeof(*scd), GFP_KERNEL);
 -		if (!scd)
--			return -ENOMEM;
 +		if (!scd) {
-+			ret = -ENOMEM;
+ 			return -ENOMEM;
 +			goto put_rpm;
 +		}
  		scd->dev = dev;
  		scd->scs = desc->gdscs;
  		scd->num = desc->num_gdscs;
- 		scd->pd_list = cc->pd_list;
  		ret = gdsc_register(scd, &reset->rcdev, regmap);
  		if (ret)
 -			return ret;
@@ -57,7 +56,7 @@ diff --git a/drivers/clk/qcom/common.c b/drivers/clk/qcom/common.c
  	}
  
  	cc->rclks = rclks;
-@@ -341,7 +354,7 @@ int qcom_cc_really_probe(struct device *dev,
+@@ -335,7 +348,7 @@ int qcom_cc_really_probe(struct device *dev,
  	for (i = 0; i < num_clk_hws; i++) {
  		ret = devm_clk_hw_register(dev, clk_hws[i]);
  		if (ret)
@@ -66,7 +65,7 @@ diff --git a/drivers/clk/qcom/common.c b/drivers/clk/qcom/common.c
  	}
  
  	for (i = 0; i < num_clks; i++) {
-@@ -350,14 +363,20 @@ int qcom_cc_really_probe(struct device *dev,
+@@ -344,14 +357,20 @@ int qcom_cc_really_probe(struct device *dev,
  
  		ret = devm_clk_register_regmap(dev, rclks[i]);
  		if (ret)
@@ -91,7 +90,7 @@ diff --git a/drivers/clk/qcom/common.c b/drivers/clk/qcom/common.c
  EXPORT_SYMBOL_GPL(qcom_cc_really_probe);
  
 diff --git a/drivers/clk/qcom/common.h b/drivers/clk/qcom/common.h
-index 7ace5d7f5836aa81431153ba92d8f14f2ffe8147..9c10bc8c197cd7dfa25ccd245763ad6acb081523 100644
+index 7ace5d7f5..9c10bc8c1 100644
 --- a/drivers/clk/qcom/common.h
 +++ b/drivers/clk/qcom/common.h
 @@ -38,6 +38,7 @@ struct qcom_cc_desc {
@@ -102,4 +101,3 @@ index 7ace5d7f5836aa81431153ba92d8f14f2ffe8147..9c10bc8c197cd7dfa25ccd245763ad6a
  };
  
  /**
-
