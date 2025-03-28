@@ -1,4 +1,4 @@
-diff -rupbN a/drivers/clk/qcom/common.c b/drivers/clk/qcom/common.c
+diff --git a/drivers/clk/qcom/common.c b/drivers/clk/qcom/common.c
 --- a/drivers/clk/qcom/common.c
 +++ b/drivers/clk/qcom/common.c
 @@ -9,6 +9,7 @@
