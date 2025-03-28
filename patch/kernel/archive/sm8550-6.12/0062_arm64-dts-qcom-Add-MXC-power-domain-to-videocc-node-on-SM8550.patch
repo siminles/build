@@ -1,0 +1,52 @@
+From: Jagadeesh Kona <quic_jkona@quicinc.com>
+To: Bjorn Andersson <andersson@kernel.org>,
+	Michael Turquette <mturquette@baylibre.com>,
+	Stephen Boyd <sboyd@kernel.org>, Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Konrad Dybcio <konradybcio@kernel.org>,
+	"Vladimir Zapolskiy" <vladimir.zapolskiy@linaro.org>,
+	Dmitry Baryshkov <lumag@kernel.org>
+Cc: Ajit Pandey <quic_ajipan@quicinc.com>,
+	Imran Shaik <quic_imrashai@quicinc.com>,
+	Taniya Das <quic_tdas@quicinc.com>,
+	"Satya Priya Kakitapalli" <quic_skakitap@quicinc.com>,
+	<linux-arm-msm@vger.kernel.org>, <linux-clk@vger.kernel.org>,
+	<devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+	Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+	Jagadeesh Kona <quic_jkona@quicinc.com>,
+	Bryan O'Donoghue <bryan.odonoghue@linaro.org>,
+	Dmitry Baryshkov <lumag@kernel.org>
+Subject: [PATCH v3 14/18] arm64: dts: qcom: Add MXC power domain to videocc node on SM8550
+Date: Thu, 27 Mar 2025 15:22:34 +0530	[thread overview]
+Message-ID: <20250327-videocc-pll-multi-pd-voting-v3-14-895fafd62627@quicinc.com> (raw)
+In-Reply-To: <20250327-videocc-pll-multi-pd-voting-v3-0-895fafd62627@quicinc.com>
+
+Videocc requires both MMCX and MXC rails to be powered ON to configure
+the video PLLs on SM8550 platform. Hence add MXC power domain to videocc
+node on SM8550.
+
+Signed-off-by: Jagadeesh Kona <quic_jkona@quicinc.com>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Reviewed-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+---
+ arch/arm64/boot/dts/qcom/sm8550.dtsi | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/qcom/sm8550.dtsi b/arch/arm64/boot/dts/qcom/sm8550.dtsi
+index f78d5292c5dd5ec88c8deb0ca6e5078511ac52b7..92017caedbbbea12eb2e43f2e9f5bcad0c0ee40c 100644
+--- a/arch/arm64/boot/dts/qcom/sm8550.dtsi
++++ b/arch/arm64/boot/dts/qcom/sm8550.dtsi
+@@ -3225,8 +3225,10 @@ videocc: clock-controller@aaf0000 {
+ 			reg = <0 0x0aaf0000 0 0x10000>;
+ 			clocks = <&bi_tcxo_div2>,
+ 				 <&gcc GCC_VIDEO_AHB_CLK>;
+-			power-domains = <&rpmhpd RPMHPD_MMCX>;
+-			required-opps = <&rpmhpd_opp_low_svs>;
++			power-domains = <&rpmhpd RPMHPD_MMCX>,
++					<&rpmhpd RPMHPD_MXC>;
++			required-opps = <&rpmhpd_opp_low_svs>,
++					<&rpmhpd_opp_low_svs>;
+ 			#clock-cells = <1>;
+ 			#reset-cells = <1>;
+ 			#power-domain-cells = <1>;
