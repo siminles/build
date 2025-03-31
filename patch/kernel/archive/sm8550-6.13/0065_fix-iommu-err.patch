@@ -1,0 +1,12 @@
+diff --git a/arch/arm64/boot/dts/qcom/sm8550.dtsi b/arch/arm64/boot/dts/qcom/sm8550.dtsi
+index a2daf9712..a29b82d92 100644
+--- a/arch/arm64/boot/dts/qcom/sm8550.dtsi
++++ b/arch/arm64/boot/dts/qcom/sm8550.dtsi
+@@ -4399,7 +4399,6 @@ apps_smmu: iommu@15000000 {
+ 				     <GIC_SPI 694 IRQ_TYPE_LEVEL_HIGH>,
+ 				     <GIC_SPI 695 IRQ_TYPE_LEVEL_HIGH>,
+ 				     <GIC_SPI 696 IRQ_TYPE_LEVEL_HIGH>;
+-			dma-coherent;
+ 		};
+ 
+ 		intc: interrupt-controller@17100000 {
