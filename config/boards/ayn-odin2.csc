@@ -64,14 +64,6 @@ function post_family_tweaks__ayn-odin2_enable_services() {
 		return 0
 	fi
 
-function post_family_tweaks__qcom-robotics-rb5_extra_packages() {
-	if ! qcom-robotics-rb5_is_userspace_supported; then
-		if [[ "${RELEASE}" != "" ]]; then
-			display_alert "Missing userspace for ${BOARD}" "${RELEASE} does not have the userspace necessary to support the ${BOARD}" "warn"
-		fi
-		return 0
-	fi
-
 	if [[ "${RELEASE}" == "noble" ]]; then
 		display_alert "Adding qcom-mainline PPA" "${BOARD}" "info"
 		do_with_retries 3 chroot_sdcard add-apt-repository ppa:liujianfeng1994/qcom-mainline --yes --no-update
