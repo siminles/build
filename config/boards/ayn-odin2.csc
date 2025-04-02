@@ -64,9 +64,31 @@ function post_family_tweaks__ayn-odin2_enable_services() {
 		return 0
 	fi
 
-	if [[ "${RELEASE}" == "jammy" ]] || [[ "${RELEASE}" == "noble" ]]; then
-		display_alert "Adding Mesa PPA For Ubuntu ${BOARD}" "warn"
+function post_family_tweaks__qcom-robotics-rb5_extra_packages() {
+	if ! qcom-robotics-rb5_is_userspace_supported; then
+		if [[ "${RELEASE}" != "" ]]; then
+			display_alert "Missing userspace for ${BOARD}" "${RELEASE} does not have the userspace necessary to support the ${BOARD}" "warn"
+		fi
+		return 0
+	fi
+
+	if [[ "${RELEASE}" == "noble" ]]; then
+		display_alert "Adding qcom-mainline PPA" "${BOARD}" "info"
 		do_with_retries 3 chroot_sdcard add-apt-repository ppa:liujianfeng1994/qcom-mainline --yes --no-update
+	fi
+
+	if [[ "${RELEASE}" == "noble" ]]; then
+		display_alert "Adding Mesa PPA For Ubuntu " "${BOARD}" "info"
+		do_with_retries 3 chroot_sdcard add-apt-repository ppa:oibaf/graphics-drivers --yes --no-update
+	fi
+
+	do_with_retries 3 chroot_sdcard_apt_get_update
+	do_with_retries 3 chroot_sdcard_apt_get_install vulkan-tools mesa-vulkan-drivers btop mtools zstd
+
+	if [[ "${DESKTOP_ENVIRONMENT}" == "kde-plasma" ]]; then
+		display_alert "Adding Extra KDE Package" "${BOARD}" "info"
+		do_with_retries 3 chroot_sdcard_apt_get_install plasma-workspace-wayland plasma-desktop plasma-systemmonitor plasma-nm kde-standard kde-spectacle kinfocenter kscreen krfb kfind filelight \
+		dolphin clinfo vulkan-tools wayland-utils
 	fi
 
 	# We need unudhcpd from armbian repo, so enable it
@@ -74,7 +96,7 @@ function post_family_tweaks__ayn-odin2_enable_services() {
 
 	do_with_retries 3 chroot_sdcard_apt_get_update
 		display_alert "Installing ${BOARD} tweaks" "warn"
-	do_with_retries 3 chroot_sdcard_apt_get_install alsa-ucm-conf qbootctl qrtr-tools unudhcpd mkbootimg
+	do_with_retries 3 chroot_sdcard_apt_get_install qbootctl qrtr-tools unudhcpd mkbootimg
 	# disable armbian repo back
 	mv "${SDCARD}"/etc/apt/sources.list.d/armbian.sources "${SDCARD}"/etc/apt/sources.list.d/armbian.sources.disabled
 	do_with_retries 3 chroot_sdcard_apt_get_update
