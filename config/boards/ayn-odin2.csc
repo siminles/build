@@ -88,7 +88,7 @@ function post_family_tweaks__ayn-odin2_enable_services() {
 
 	do_with_retries 3 chroot_sdcard_apt_get_update
 		display_alert "Installing ${BOARD} tweaks" "warn"
-	do_with_retries 3 chroot_sdcard_apt_get_install qbootctl qrtr-tools unudhcpd mkbootimg
+	do_with_retries 3 chroot_sdcard_apt_get_install alsa-ucm-conf qbootctl qrtr-tools unudhcpd mkbootimg
 	# disable armbian repo back
 	mv "${SDCARD}"/etc/apt/sources.list.d/armbian.sources "${SDCARD}"/etc/apt/sources.list.d/armbian.sources.disabled
 	do_with_retries 3 chroot_sdcard_apt_get_update
