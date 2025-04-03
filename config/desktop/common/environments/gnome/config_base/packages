@@ -25,6 +25,7 @@ gnome-packagekit
 gnome-session
 gnome-shell
 gnome-shell-extension-appindicator
+gnome-remote-desktop
 gvfs-backends
 inputattach
 libnotify-bin
