@@ -75,7 +75,7 @@ function post_family_tweaks__ayn-odin2_enable_services() {
 	fi
 
 	do_with_retries 3 chroot_sdcard_apt_get_update
-	do_with_retries 3 chroot_sdcard_apt_get_install vulkan-tools mesa-vulkan-drivers btop mtools zstd
+	do_with_retries 3 chroot_sdcard_apt_get_install vulkan-tools mesa-vulkan-drivers btop mtools zstd gnome-remote-desktop gnome-extension-manager firefox chromium
 
 	if [[ "${DESKTOP_ENVIRONMENT}" == "kde-plasma" ]]; then
 		display_alert "Adding Extra KDE Package" "${BOARD}" "info"
