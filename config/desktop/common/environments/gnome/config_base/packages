@@ -33,9 +33,11 @@ lm-sensors
 nautilus
 nautilus-extension-gnome-terminal
 pavucontrol
+gstreamer1.0-packagekit
+gstreamer1.0-plugins-base-apps
+gstreamer1.0-pulseaudio
 printer-driver-all
 profile-sync-daemon
-pulseaudio
 pulseaudio-module-bluetooth
 software-properties-gtk
 synaptic
